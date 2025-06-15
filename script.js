@@ -3,6 +3,11 @@ onload = () => {
         this.addEventListener("contextmenu", (event) => { event.preventDefault() });
     })
     document.getElementById("create-node").addEventListener("click", handleNewNodeCursor);
+    document.getElementById("clear-workspace").addEventListener("click", function() {
+        cy.remove("*")
+    })
+    document.getElementById("save").addEventListener("click", handleSave);
+    document.getElementById("load").addEventListener("click", handleLoad);
     $(".modal").draggable({
         handle: $(".modal-bar")
     });
@@ -52,6 +57,61 @@ function handleNewNodeClick(event) {
         cy.off("tap", handleNewNodeClick);
         document.getElementById("container").style.cursor = "default";
     }
+}
+function handleSave() {
+    const graphJson = JSON.stringify(cy.json());
+    const filename = "graph.json"
+
+    const blob = new Blob([graphJson], { type: "application/json "});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+function handleLoad() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.id = "fileInput";
+    input.style.position = "absolute";
+    input.style.left = "-1000px";
+    document.body.appendChild(input);
+
+    document.getElementById("fileInput").addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const graphJson = JSON.parse(e.target.result);
+                cy.json({ elements: graphJson.elements });
+
+                cy.nodes().once("click", function(event) {
+                    event.stopPropagation();
+                    handleEdgeCreation(event, this.id());
+                });
+                cy.nodes().on("cxttap", function(event) {
+                    const node = event.target; // The clicked node
+                    const mouseX = event.renderedPosition.x; // X coordinate of the mouse
+                    const mouseY = event.renderedPosition.y; // Y coordinate of the mouse
+                    const nodeId = node.id(); // ID of the clicked node
+            
+                    summonNodeContextMenu(event, mouseX, mouseY, nodeId);
+                });
+            } catch (err) {
+                console.error("Invalid JSON file:", err);
+            }
+        };
+        reader.readAsText(file);
+    })
+    input.click();
 }
 
 // context menus

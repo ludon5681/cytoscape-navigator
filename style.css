@@ -27,6 +27,7 @@
 }
 .controls > button {
     padding-inline: 5px;
+    margin-bottom: 8px;
 }
 
 /* modal */
