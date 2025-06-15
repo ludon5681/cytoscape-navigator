@@ -18,6 +18,8 @@
     height: 100vw;
     background-color: lightgrey;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
 }
 .controls > h3 {
     
@@ -25,10 +27,11 @@
 .controls > hr {
     margin: 10px;
 }
-.controls > button {
+.controls button {
     padding-inline: 5px;
     margin-bottom: 8px;
 }
+
 
 /* modal */
 .modal {
