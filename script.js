@@ -12,13 +12,22 @@ onload = () => {
 function handleNewNodeCursor(event) {
     event.stopPropagation();
     document.getElementById("container").style.cursor = "cell";
-    document.getElementById("container").addEventListener("click", handleNewNodeClick);
+    cy.on("tap", handleNewNodeClick);
+
+    // handle abort
+    const handleRightClick = function() {
+        cy.off("tap", handleNewNodeClick);
+        document.getElementById("container").removeEventListener("contextmenu", handleRightClick);
+        document.getElementById("container").style.cursor = "default";
+    }
+    document.getElementById("container").addEventListener("contextmenu", handleRightClick);
 }
 function handleNewNodeClick(event) {
-    let mouseX = event.clientX;
-    let mouseY = event.clientY;
+    let mouseX = event.position.x;
+    let mouseY = event.position.y;
+    let clientX = event.renderedPosition.x;
     let nodeId = Math.random();
-    if (mouseX <= window.innerWidth * 0.8) {
+    if (clientX <= window.innerWidth * 0.8) {
         cy.add({
             group: "nodes",
             data: { id: nodeId },
@@ -30,17 +39,17 @@ function handleNewNodeClick(event) {
         event.stopPropagation();
         handleEdgeCreation(event, this.id());
     });
-    cy.$(`node#${nodeId}`).on("cxttap", function(event) {
-        const node = event.target; // The clicked node
-        const mouseX = event.position.x; // X coordinate of the mouse
-        const mouseY = event.position.y; // Y coordinate of the mouse
+    cy.$(`node#${nodeId}`).on("cxttap", function(newEvent) {
+        const node = newEvent.target; // The clicked node
+        const mouseX = newEvent.renderedPosition.x; // X coordinate of the mouse
+        const mouseY = newEvent.renderedPosition.y; // Y coordinate of the mouse
         const nodeId = node.id(); // ID of the clicked node
 
         summonNodeContextMenu(event, mouseX, mouseY, nodeId);
     })
 
-    if (!event.shiftKey) {
-        document.getElementById("container").removeEventListener("click", handleNewNodeClick);
+    if (!event.originalEvent.shiftKey) {
+        cy.off("tap", handleNewNodeClick);
         document.getElementById("container").style.cursor = "default";
     }
 }
@@ -143,25 +152,62 @@ function handleEdgeContext(event, edgeId) {
 function handleEdgeCreation(event, nodeId) {
     event.stopPropagation();
     document.getElementById("container").style.cursor = "cell";
-    cy.nodes().once('click', function(event) {
+    const createEdge = function(event) {
         var node = event.target;
         let id = Math.random()
-        try {
-            let newEdge = cy.add({
-                group: "edges",
-                data: { id: id, source: nodeId, target: node.id() },
-            });
-            newEdge.on("cxttap", (event) => { handleEdgeContext(event, id) });
-        } catch {
-            console.log("Attempted edge creation on preexisting edge.")
-        } finally {
+
+        // check for existing edges
+        let existingEdge = cy.edges(`[source="${nodeId}"][target="${node.id()}"]`);
+        if (existingEdge.length > 0) {
+            console.log("Attempted edge creation on preexisting edge.");
             document.getElementById("container").style.cursor = "default";
             cy.nodes().once("click", function(event) {
                 event.stopPropagation()
                 handleEdgeCreation(event, this.id())
             });
+            return;
         }
-    });
+
+        let newEdge = cy.add({
+            group: "edges",
+            data: { id: id, source: nodeId, target: node.id() },
+        });
+        newEdge.on("cxttap", (event) => { handleEdgeContext(event, id) });
+
+        document.getElementById("container").style.cursor = "default";
+        cy.nodes().once("click", function(event) {
+            event.stopPropagation()
+            handleEdgeCreation(event, this.id())
+        });
+    }
+
+    cy.nodes().once('click', createEdge);
+
+    // handle clicks outside nodes (abort)
+    cy.once("click", (event) => {
+        if (event.target.group && event.target.group() === "nodes") {
+            return;
+        }
+        document.getElementById("container").style.cursor = "default";
+        cy.nodes().off("click", createEdge);
+        // rearm edge creation
+        cy.nodes().once("click", function(event) {
+            event.stopPropagation()
+            handleEdgeCreation(event, this.id())
+        });
+    })
+    // handle right-click abort
+    const handleRightClick = function() {
+        cy.nodes().off("click", createEdge);
+        document.getElementById("container").removeEventListener("contextmenu", handleRightClick);
+        document.getElementById("container").style.cursor = "default";
+        // rearm edge creation
+        cy.nodes().once("click", function(event) {
+            event.stopPropagation()
+            handleEdgeCreation(event, this.id())
+        });
+    }
+    document.getElementById("container").addEventListener("contextmenu", handleRightClick);
 }
 
 var cy = cytoscape({
