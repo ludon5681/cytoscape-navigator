@@ -112,6 +112,7 @@ function handleLoad() {
         reader.readAsText(file);
     })
     input.click();
+    document.body.removeChild(input);
 }
 
 // context menus
