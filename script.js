@@ -145,12 +145,13 @@ function handleEdgeCreation(event, nodeId) {
     document.getElementById("container").style.cursor = "cell";
     cy.nodes().once('click', function(event) {
         var node = event.target;
+        let id = Math.random()
         try {
             let newEdge = cy.add({
                 group: "edges",
-                data: { id: `${nodeId}to${node.id()}`, source: nodeId, target: node.id() },
+                data: { id: id, source: nodeId, target: node.id() },
             });
-            newEdge.on("cxttap", (event) => { handleEdgeContext(event, `${nodeId}to${node.id()}`) });
+            newEdge.on("cxttap", (event) => { handleEdgeContext(event, id) });
         } catch {
             console.log("Attempted edge creation on preexisting edge.")
         } finally {
