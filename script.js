@@ -30,8 +30,7 @@ function handleNewNodeClick(event) {
         event.stopPropagation();
         handleEdgeCreation(event, this.id());
     });
-    //cy.$("node").removeListener("ctxtap");
-    cy.nodes().on("cxttap", function(event) {
+    cy.$(`node#${nodeId}`).on("cxttap", function(event) {
         const node = event.target; // The clicked node
         const mouseX = event.position.x; // X coordinate of the mouse
         const mouseY = event.position.y; // Y coordinate of the mouse
@@ -73,9 +72,9 @@ function summonContextMenu(event, mouseX, mouseY, nodeId) {
 function handleNodeLabel(nodeId) {
     document.getElementById("label-modal").style.top = "100px";
     document.getElementById("label-modal").style.left = "100px";
+    document.getElementById("label-text").focus();
 
     const handleLabelSubmit = function() {
-        console.log(nodeId)
         cy.$(`node#${nodeId}`).style("label", document.getElementById("label-text").value);
         document.getElementById("label-modal").style.top = "-1000px";
         document.getElementById("label-text").value = "";
@@ -123,9 +122,6 @@ function handleEdgeCreation(event, nodeId) {
         }
     });
 }
-
-
-
 
 var cy = cytoscape({
     container: document.getElementById("cy"),
