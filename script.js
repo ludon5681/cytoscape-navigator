@@ -36,7 +36,7 @@ function handleNewNodeClick(event) {
         const mouseY = event.position.y; // Y coordinate of the mouse
         const nodeId = node.id(); // ID of the clicked node
 
-        summonContextMenu(event, mouseX, mouseY, nodeId);
+        summonNodeContextMenu(event, mouseX, mouseY, nodeId);
     })
 
     if (!event.shiftKey) {
@@ -46,36 +46,69 @@ function handleNewNodeClick(event) {
 }
 
 // context menus
-function summonContextMenu(event, mouseX, mouseY, nodeId) {
+function summonNodeContextMenu(event, mouseX, mouseY, nodeId) {
     document.getElementById("node-context").style.top = `${mouseY}px`;
     document.getElementById("node-context").style.left = `${mouseX}px`;
 
-    // handle deleting a node
-    const deleteNode = function() {
-        cy.remove(cy.$(`node#${nodeId}`));
-    }
-    document.getElementById("node-delete").addEventListener("click", deleteNode);
-
-    // handle adding a label
-    const handleNodeLabelWrapper = function() {
-        handleNodeLabel(nodeId);
-    }
-    document.getElementById("node-label").addEventListener("click", handleNodeLabelWrapper);
+    const deleteNode = activateDeleteElement("node", nodeId);
+    const handleNodeLabelWrapper = activateHandleLabel("node", nodeId);
 
     document.addEventListener("click", (event) => {
         document.getElementById("node-delete").removeEventListener("click", deleteNode);
         document.getElementById("node-label").removeEventListener("click", handleNodeLabelWrapper);
         document.getElementById("node-context").style.top = `-1000px`;
     })
-    
 }
-function handleNodeLabel(nodeId) {
+function summonEdgeContextMenu(event, mouseX, mouseY, edgeId) {
+    document.getElementById("edge-context").style.top = `${mouseY}px`;
+    document.getElementById("edge-context").style.left = `${mouseX}px`;
+
+    const deleteNode = activateDeleteElement("edge", edgeId);
+    const handleNodeLabelWrapper = activateHandleLabel("edge", edgeId);
+
+    document.addEventListener("click", (event) => {
+        document.getElementById("edge-delete").removeEventListener("click", deleteNode);
+        document.getElementById("edge-label").removeEventListener("click", handleNodeLabelWrapper);
+        document.getElementById("edge-context").style.top = `-1000px`;
+    })
+}
+function activateDeleteElement(type, nodeId) {
+    // handle deleting a node
+    const deleteNode = function() {
+        cy.remove(cy.$(`#${nodeId}`));
+    }
+    if (type == "node") {
+        document.getElementById("node-delete").addEventListener("click", deleteNode);
+    } else if (type == "edge") {
+        document.getElementById("edge-delete").addEventListener("click", deleteNode);
+    }
+    return deleteNode;
+}
+function activateHandleLabel(type, nodeId) {
+    // handle adding a label
+    const handleNodeLabelWrapper = function() {
+        handleNodeLabel(type, nodeId);
+    }
+    if (type == "node") {
+        document.getElementById("node-label").addEventListener("click", handleNodeLabelWrapper);
+    } else if (type == "edge") {
+        document.getElementById("edge-label").addEventListener("click", handleNodeLabelWrapper);
+    }
+    return handleNodeLabelWrapper;
+}
+function handleNodeLabel(type, nodeId) {
+    document.getElementById("label-header").innerHTML = `Assign ${type} label`;
     document.getElementById("label-modal").style.top = "100px";
     document.getElementById("label-modal").style.left = "100px";
     document.getElementById("label-text").focus();
 
     const handleLabelSubmit = function() {
-        cy.$(`node#${nodeId}`).style("label", document.getElementById("label-text").value);
+        cy.style()
+          .selector(`#${nodeId}`)
+          .style({
+            "label": document.getElementById("label-text").value
+          })
+          .update();
         document.getElementById("label-modal").style.top = "-1000px";
         document.getElementById("label-text").value = "";
         removeEventListeners()
@@ -100,6 +133,12 @@ function handleNodeLabel(nodeId) {
     document.addEventListener("keydown", handleKeyDown);
 }
 
+function handleEdgeContext(event, edgeId) {
+    const mouseX = event.position.x;
+    const mouseY = event.position.y;
+    summonEdgeContextMenu(event, mouseX, mouseY, edgeId);
+}
+
 // handle edge creation on node click
 function handleEdgeCreation(event, nodeId) {
     event.stopPropagation();
@@ -107,10 +146,11 @@ function handleEdgeCreation(event, nodeId) {
     cy.nodes().once('click', function(event) {
         var node = event.target;
         try {
-            cy.add({
+            let newEdge = cy.add({
                 group: "edges",
-                data: { id: `${nodeId}~${node.id()}`, source: nodeId, target: node.id() }
+                data: { id: `${nodeId}to${node.id()}`, source: nodeId, target: node.id() },
             });
+            newEdge.on("cxttap", (event) => { handleEdgeContext(event, `${nodeId}to${node.id()}`) });
         } catch {
             console.log("Attempted edge creation on preexisting edge.")
         } finally {
