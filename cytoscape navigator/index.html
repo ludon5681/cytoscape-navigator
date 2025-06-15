@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="lib/jquery-ui.min.css" />
+    <script src="lib/cytoscape.min.js"></script>
+    <script src="lib/jquery-3.6.1.min.js"></script>
+    <script src="lib/jquery-ui.min.js"></script>
+    <script src="script.js" defer></script>
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="container" id="container">
+        <div id="cy" class="cy"></div>
+        <div id="controls" class="controls">
+            <h3>Control Panel</h3>
+            <hr>
+            <button id="create-node">Create Node</button>
+        </div>
+        <!-- Modal object. Will need multiple, one for each action requiring a modal -->
+        <div class="modal label-modal" id="label-modal">
+            <div class="modal-bar">
+                <svg class=modal-x id="label-modal-x" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                </svg>
+            </div>
+            <div class="modal-content">
+                <h3>Assign node label</h3>
+                <input class="label-text" id="label-text" />
+                <button class="submit" id="label-submit">Assign</button>
+            </div>
+        </div>
+
+        <!-- Context menus. Will need multiple, one for each object that requires one -->
+        <div class="context" id="node-context">
+            <div class="context-option node-label" id="node-label">
+                <p>Assign label</p>
+            </div>
+            <div class="context-option node-delete" id="node-delete">
+                <p>Delete node</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
