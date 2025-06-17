@@ -9,6 +9,8 @@
     <script src="lib/cytoscape.min.js"></script>
     <script src="lib/jquery-3.6.1.min.js"></script>
     <script src="lib/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/monolith.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script src="script.js" defer></script>
 
     <title>Document</title>
@@ -43,22 +45,69 @@
                 <button class="submit" id="label-submit">Assign</button>
             </div>
         </div>
+        <div class="modal style-modal" id="style-modal">
+            <div class="modal-bar">
+                <svg class="modal-x" id="style-modal-x" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                </svg>
+            </div>
+            <div class="style-content">
+                <div class="style-nav">
+                    <div class="style-category style-both" id="common">
+                        <p>Common</p>
+                    </div>
+                    <div class="style-category style-node">
+                        <p>Shape</p>
+                    </div>
+                    <div class="style-category style-both">
+                        <p>Border</p>
+                    </div>
+                    <div class="style-category style-edge">
+                        <p>Edge Type</p>
+                    </div>
+                    <div class="style-category style-edge">
+                        <p>Arrow Options</p>
+                    </div>
+                    <div class="style-category style-node">
+                        <p>Pie Chart</p>
+                    </div>
+                    <div class="style-category style-both">
+                        <p>Label Options</p>
+                    </div>
+                </div>
+                <div class="style-controls" id="style-controls">
+                    
+                </div>
+            </div>
+        </div>
 
         <!-- Context menus. Will need multiple, one for each object that requires one -->
         <div class="context" id="node-context">
+            <div class="context-option node-label" id="node-style">
+                <p>Adjust styles</p>
+            </div>
             <div class="context-option node-label" id="node-label">
                 <p>Assign label</p>
             </div>
             <div class="context-option node-delete" id="node-delete">
                 <p>Delete node</p>
             </div>
+            <div class="context-option node-delete" id="node-props">
+                <p>Properties</p>
+            </div>
         </div>
         <div class="context" id="edge-context">
+            <div class="context-option edge-style" id="edge-style">
+                <p>Adjust styles</p>
+            </div>
             <div class="context-option edge-label" id="edge-label">
                 <p>Assign label</p>
             </div>
             <div class="context-option edge-delete" id="edge-delete">
                 <p>Delete edge</p>
+            </div>
+            <div class="context-option edge-props" id="edge-props">
+                <p>Properties</p>
             </div>
         </div>
     </div>

@@ -11,6 +11,9 @@
     height: 100vh;
     overflow: hidden;
 }
+.invisible {
+    display: none !important;
+}
 
 /* control panel */
 .controls {
@@ -22,7 +25,7 @@
     flex-direction: column;
 }
 .controls > h3 {
-    
+    font-family: sans-serif;
 }
 .controls > hr {
     margin: 10px;
@@ -39,8 +42,6 @@
     z-index: 100;
     top: -1000px;
     background-color: rgb(242, 242, 242);
-    width: 300px;
-    height: 100px;
 }
 .modal-bar {
     display: flex;
@@ -59,6 +60,72 @@
 .modal h3 {
     margin-bottom: 10px;
     font-family: sans-serif;
+}
+.label-modal {
+    width: 300px;
+    height: 100px;
+}
+.style-modal {
+    width: 500px;
+    height: 300px;
+}
+.style-content {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    /* multiplied by the number of options to prevent overflow, 5px because of padding + border */
+    height: calc(100% - 5px * 5);
+}
+.style-nav {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px lightgray solid;
+}
+.style-category {
+    width: calc(100%);
+    background-color: rgb(242, 242, 242);
+    border-bottom: 1px lightgray solid;
+}
+.style-category > p {
+    line-height: calc(1rem + 12px);
+    padding-left: 10px;
+}
+.style-category:hover {
+    transition: 150ms;
+    background-color: rgb(225, 225, 225);
+}
+.style-controls {
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.control-group {
+    margin-bottom: 10px;
+    width: 100%;
+}
+.color-buttons {
+    width: 100%;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+.color-button {
+    width: 30px;
+    height: 20px;
+    border: rgb(150, 150, 150) 1px solid;
+    border-radius: 4px;
+}
+.color-button:hover {
+    transition: 150ms;
+    opacity: 0.5;
+}
+.submission-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    margin-top: 20px;
 }
 
 /* context menus */
